@@ -128,8 +128,9 @@ const CustomTooltip = ({ active, payload, label, isMoney }) => {
 };
 
 export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
   const [allRows, setAllRows]           = useState([]);
-  const [loading, setLoading]           = useState(false);
+  const [loading, setLoading]           = useState(true);
   const [loadProgress, setLoadProgress] = useState({ done: 0, total: SHEETS.length });
   const [error, setError]               = useState(null);
   const [filterYear, setFilterYear]     = useState('all');
@@ -153,11 +154,12 @@ export default function Dashboard() {
       } catch (e) {}
       done++; setLoadProgress({ done, total: SHEETS.length });
     }
-    if (rows.length === 0) setError('No se pudieron cargar datos. Verifica que el Google Sheets sea público.');
+    if (rows.length === 0) setError('No se pudieron cargar datos. Verifica que el Google Sheets sea pÃºblico.');
     setAllRows(rows); setLastFetch(new Date()); setLoading(false);
   }, []);
 
-  useEffect(() => { fetchAllSheets(); }, [fetchAllSheets]);
+  useEffect(() => { setMounted(true); fetchAllSheets(); }, [fetchAllSheets]);
+  if (!mounted) return null;
 
   const years    = [...new Set(allRows.map(r => r.anio))].sort();
   const filtered = allRows.filter(r =>
@@ -189,11 +191,11 @@ export default function Dashboard() {
   const pieData  = topClientes.slice(0,6).map(([name,v]) => ({ name, value: v.monto }));
 
   const kpis = [
-    { label:'Total gastado',   value:fmtFull(totalMonto), sub:fmtCLP(totalMonto),                color:'#7C3AED', bg:'#EDE9FE', icon:'💳' },
-    { label:'Viajes',          value:fmtN(totalViajes),   sub:`Prom. ${fmtCLP(avgTicket)}/viaje`, color:'#2563EB', bg:'#DBEAFE', icon:'🚗' },
-    { label:'Trabajadores',    value:fmtN(trabajadores),  sub:'activos en período',               color:'#059669', bg:'#D1FAE5', icon:'👤' },
-    { label:'Relaciones (CC)', value:fmtN(relaciones),    sub:'CCs facturados',                   color:'#D97706', bg:'#FEF3C7', icon:'🔗' },
-    { label:'Clientes',        value:fmtN(clientes),      sub:'cuentas distintas',                color:'#DC2626', bg:'#FEE2E2', icon:'🏢' },
+    { label:'Total gastado',   value:fmtFull(totalMonto), sub:fmtCLP(totalMonto),                color:'#7C3AED', bg:'#EDE9FE', icon:'ð³' },
+    { label:'Viajes',          value:fmtN(totalViajes),   sub:`Prom. ${fmtCLP(avgTicket)}/viaje`, color:'#2563EB', bg:'#DBEAFE', icon:'ð' },
+    { label:'Trabajadores',    value:fmtN(trabajadores),  sub:'activos en perÃ­odo',               color:'#059669', bg:'#D1FAE5', icon:'ð¤' },
+    { label:'Relaciones (CC)', value:fmtN(relaciones),    sub:'CCs facturados',                   color:'#D97706', bg:'#FEF3C7', icon:'ð' },
+    { label:'Clientes',        value:fmtN(clientes),      sub:'cuentas distintas',                color:'#DC2626', bg:'#FEE2E2', icon:'ð¢' },
   ];
 
   if (loading) {
@@ -208,7 +210,7 @@ export default function Dashboard() {
             </svg>
           </div>
           <h2 className={styles.loadingTitle}>Cargando datos de Cabify</h2>
-          <p className={styles.loadingSub}>Leyendo hojas del Google Sheets… {loadProgress.done}/{loadProgress.total}</p>
+          <p className={styles.loadingSub}>Leyendo hojas del Google Sheetsâ¦ {loadProgress.done}/{loadProgress.total}</p>
           <div className={styles.progressTrack}>
             <div className={styles.progressFill} style={{ width: `${pct}%` }} />
           </div>
@@ -222,7 +224,7 @@ export default function Dashboard() {
     return (
       <div className={styles.loadingWrap}>
         <div className={styles.loadingBox}>
-          <div style={{ fontSize:48, marginBottom:16 }}>⚠️</div>
+          <div style={{ fontSize:48, marginBottom:16 }}>â ï¸</div>
           <h2 className={styles.loadingTitle}>Error al cargar datos</h2>
           <p className={styles.loadingSub} style={{ color:'#DC2626' }}>{error}</p>
           <button className={styles.retryBtn} onClick={fetchAllSheets}>Reintentar</button>
@@ -245,19 +247,19 @@ export default function Dashboard() {
           <div>
             <h1 className={styles.title}>Dashboard Cabify</h1>
             <p className={styles.subtitle}>
-              {lastFetch ? `Actualizado ${lastFetch.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'})} ${lastFetch.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}` : 'Cargando…'}
-              {' · '}{fmtN(allRows.length)} viajes totales
+              {lastFetch ? `Actualizado ${lastFetch.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'})} ${lastFetch.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}` : 'Cargandoâ¦'}
+              {' Â· '}{fmtN(allRows.length)} viajes totales
             </p>
           </div>
         </div>
         <div className={styles.headerRight}>
-          <button className={styles.refreshBtn} onClick={fetchAllSheets}>↻ Actualizar</button>
+          <button className={styles.refreshBtn} onClick={fetchAllSheets}>â» Actualizar</button>
         </div>
       </header>
 
       <div className={styles.toolbar}>
         <select className={styles.select} value={filterYear} onChange={e => setFilterYear(e.target.value)}>
-          <option value="all">Todos los años</option>
+          <option value="all">Todos los aÃ±os</option>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
         <select className={styles.select} value={filterMonth} onChange={e => setFilterMonth(e.target.value)}>
@@ -266,7 +268,7 @@ export default function Dashboard() {
         </select>
         {(filterYear !== 'all' || filterMonth !== 'all') && (
           <button className={styles.clearBtn} onClick={() => { setFilterYear('all'); setFilterMonth('all'); }}>
-            ✕ Limpiar filtros
+            â Limpiar filtros
           </button>
         )}
         <span className={styles.resultCount}>{fmtN(filtered.length)} viajes</span>
@@ -322,7 +324,7 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
             <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Trabajadores · Clientes · Relaciones</h3>
+              <h3 className={styles.cardTitle}>Trabajadores Â· Clientes Â· Relaciones</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={monthly} margin={{top:5,right:10,left:0,bottom:5}}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6"/>
@@ -341,7 +343,7 @@ export default function Dashboard() {
             <h3 className={styles.cardTitle}>Resumen por mes</h3>
             <div className={styles.tableWrap}>
               <table className={styles.table}>
-                <thead><tr>{['Período','Total (CLP)','Viajes','Ticket prom.','Trabajadores','Relaciones','Clientes'].map(h=><th key={h}>{h}</th>)}</tr></thead>
+                <thead><tr>{['PerÃ­odo','Total (CLP)','Viajes','Ticket prom.','Trabajadores','Relaciones','Clientes'].map(h=><th key={h}>{h}</th>)}</tr></thead>
                 <tbody>
                   {monthly.map((m,i) => (
                     <tr key={i}>
@@ -365,7 +367,7 @@ export default function Dashboard() {
         <div className={styles.tabContent}>
           <div className={styles.grid2}>
             <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Distribución por cliente</h3>
+              <h3 className={styles.cardTitle}>DistribuciÃ³n por cliente</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
                   <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} paddingAngle={2}
@@ -495,7 +497,7 @@ export default function Dashboard() {
                       <td>{r.trabajador}</td>
                       <td>
                         <span className={styles.pill} style={{background:r.dcmto==='FX'?'#DBEAFE':'#D1FAE5',color:r.dcmto==='FX'?'#1E40AF':'#065F46'}}>
-                          {r.dcmto||'—'}
+                          {r.dcmto||'â'}
                         </span>
                       </td>
                       <td className={styles.money}>{fmtFull(r.monto)}</td>
