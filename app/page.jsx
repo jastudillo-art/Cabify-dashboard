@@ -129,7 +129,7 @@ const CustomTooltip = ({ active, payload, label, isMoney }) => {
 
 export default function Dashboard() {
   const [allRows, setAllRows]           = useState([]);
-  const [loading, setLoading]           = useState(true);
+  const [loading, setLoading]           = useState(false);
   const [loadProgress, setLoadProgress] = useState({ done: 0, total: SHEETS.length });
   const [error, setError]               = useState(null);
   const [filterYear, setFilterYear]     = useState('all');
