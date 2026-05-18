@@ -157,6 +157,8 @@ function Dashboard(){
   var s3=useState({done:0,total:SHEETS.length});var prog=s3[0];var setProg=s3[1];
   var s4=useState(null);var error=s4[0];var setError=s4[1];
   var s5=useState('all');var filterYear=s5[0];var setFilterYear=s5[1];
+  var s9=useState('all');var filterCliente=s9[0];var setFilterCliente=s9[1];
+var s10=useState('all');var filterTrab=s10[0];var setFilterTrab=s10[1];
   var s6=useState('all');var filterMonth=s6[0];var setFilterMonth=s6[1];
   var s7=useState('resumen');var tab=s7[0];var setTab=s7[1];
   var s8=useState(null);var lastFetch=s8[0];var setLastFetch=s8[1];
@@ -186,8 +188,8 @@ function Dashboard(){
   useEffect(function(){fetchAll();},[fetchAll]);
 
   var years=[...new Set(allRows.map(function(r){return r.anio;}))].sort();
-  var filtered=allRows.filter(function(r){
-    return(filterYear==='all'||r.anio===+filterYear)&&(filterMonth==='all'||r.mes===+filterMonth);
+ var filtered=allRows.filter(function(r){
+    return(filterYear==='all'||r.anio===+filterYear)&&(filterMonth==='all'||r.mes===+filterMonth)&&(filterCliente==='all'||r.cliente===filterCliente)&&(filterTrab==='all'||r.trabajador===filterTrab);
   });
   var monthly=aggregate(filterYear==='all'?allRows:allRows.filter(function(r){return r.anio===+filterYear;}));
   var totalMonto=filtered.reduce(function(a,r){return a+r.monto;},0);
@@ -282,6 +284,14 @@ function Dashboard(){
         Array.from({length:12},function(_,i){return h('option',{key:i+1,value:i+1},MES_F[i+1]);})
       ),
       (filterYear!=='all'||filterMonth!=='all')&&h('button',{className:'clear-btn',onClick:function(){setFilterYear('all');setFilterMonth('all');}},'✕ Limpiar'),
+    h('select',{className:'select',value:filterCliente,onChange:function(e){setFilterCliente(e.target.value);}},
+  h('option',{value:'all'},'Todos los clientes'),
+  [...new Set(allRows.map(function(r){return r.cliente;}))].sort().map(function(c){return h('option',{key:c,value:c},c);})
+),
+h('select',{className:'select',value:filterTrab,onChange:function(e){setFilterTrab(e.target.value);}},
+  h('option',{value:'all'},'Todos los trabajadores'),
+  [...new Set(allRows.map(function(r){return r.trabajador;}))].sort().map(function(c){return h('option',{key:c,value:c},c);})
+),
       h('span',{className:'result-count'},fmtN(filtered.length),' viajes')
     ),
     h('div',{className:'kpi-grid'},
